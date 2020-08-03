@@ -18,8 +18,9 @@ colFrameGreen       = [0.3, 0.4, 0.28]
 colLightGreen       = [0.4, 0.5, 0.36]
 colDark             = [0.1, 0.1, 0.1]
 
-defaultPath     = "X:/zorro_zor-5069/_library/assets/characters/chr_zorroFox/cfx_groom/"
-approvedxGen    = "zor_chr_zorroFox_cfx_groom_v080_thk"
+defaultPath     = 'X:/zorro_zor-5069/_library/assets/characters/chr_zorroFox/cfx_groom/'
+approvedxGen    = 'zor_chr_zorroFox_cfx_groom_v080_thk__body_collection'
+xGenBaseGeo     = 'body_cn_hi_cfx'
 
 def tkHelpSwitchInstancerInputs(*args):
     if cmds.window('win_tkSwitchInstancerINPUtsHELP', exists=1):
@@ -31,10 +32,10 @@ def tkHelpSwitchInstancerInputs(*args):
     cmds.showWindow(myWindow )
 
 
+
 def cShrinkWin(windowToClose, *args):
     cmds.window(windowToClose, e=1, h=20)
     cmds.window(windowToClose, e=1, w=420)
-
 
 
 
@@ -81,8 +82,6 @@ def tk_linkAnimToCloth(action, *args):
 
 
 
-
-
 def cGetNmSpc(field, *args):
     curSel = cmds.ls(sl=1)
     if curSel:
@@ -92,6 +91,7 @@ def cGetNmSpc(field, *args):
             cmds.textField(field, tx='', e=1)
     else:
         cmds.textField(field, tx='', e=1)
+
 
 
 def tkSetVisibilty(*args):
@@ -127,6 +127,7 @@ def tkSetVisibilty(*args):
         print 'no namespace!'
     
 
+
 def cSelectSimELements(*args):
     nmSpcFX = cmds.textField('tfNmSpcFX', tx=1, q=1)
     CLT = ['cape_cn_cfx_mid_geo_SIM', 'shirt_cn_cfx_mid_geo_SIM']
@@ -138,6 +139,7 @@ def cSelectSimELements(*args):
 
     else:
         cmds.select(CLT, r=1)
+
 
 
 def cSelectFXAnimELements(*args):
@@ -193,7 +195,6 @@ def cWrapStatus(action, *args):
 
 
 
-
 def cGetPath(action, *args):
     defaultPath = "X:/zorro_zor-5069/_library/assets/characters/chr_zorroFox/cfx_groom/"
 
@@ -205,13 +206,15 @@ def cGetPath(action, *args):
     if action == 'choose':
         xGenPath = cmds.fileDialog2(fm=2, ds=1, dir=defaultPath, cap='Select Directory')
         cmds.textField('tfPathxGen', tx=xGenPath[0] + '/', e=1)
-        files = cmds.getFileList(filespec = '*.ma', fld=xGenPath[0])
+        files = cmds.getFileList(filespec = '*.xgen', fld=xGenPath[0])
 
-        print files
-        print approvedxGen
-        if approvedxGen not in files:
-           cmds.textField('xGenVersion', tx=' ', e=1)
- 
+        if files:
+            if approvedxGen not in files:
+               cmds.textField('xGenVersion', tx='Choose a xGen Collection!', e=1)
+
+        else:
+            cmds.textField('xGenVersion', tx='No xGen descriptions in that Folder!', e=1)
+
 
 
 
@@ -219,39 +222,43 @@ def cSelectxGenVersion(action, *args):
     xGenPath    = cmds.textField('tfPathxGen', tx=1, q=1)
     cmdAppend   = '['
     if xGenPath:
-        files = cmds.getFileList(filespec = '*.ma', fld=xGenPath)
+        files = cmds.getFileList(filespec = '*.xgen', fld=xGenPath)
         files = sorted(files)
 
         if (cmds.window('win_xGenList', exists=1)):
             cmds.deleteUI('win_xGenList')
         myVersionWindow = cmds.window('win_xGenList', t=('Fox xGen Versions'), s=1)
 
-        cmds.columnLayout(adj=1, bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]))
+        cmds.columnLayout(adj=1)
 
         amount = len(files)
-        # print amount
-        for i in range(0, amount-1, 1):
-            name = files[i].split('.')[0]
-            if i != amount-2:
-                cmdAppend += '"'
-                cmdAppend += name
-                cmdAppend += '",'
-            else:
-                cmdAppend += '"'
-                cmdAppend += name
-                cmdAppend += '"]'
+        if amount > 0:
+            for i in range(0, amount-1, 1):
+                name = files[i].split('.')[0]
+                if i != amount-2:
+                    cmdAppend += '"'
+                    cmdAppend += name   
+                    cmdAppend += '",'
+                else:
+                    cmdAppend += '"'
+                    cmdAppend += name
+                    cmdAppend += '"]'
 
-        cmd1 = 'cmds.textScrollList("txGenVersion", numberOfRows=8, append= '
-        cmd2 = ')'
-        cmd = cmd1 + cmdAppend + cmd2
+            cmd1 = 'cmds.textScrollList("txGenVersion", numberOfRows=8, append= '
+            cmd2 = ')'
+            cmd = cmd1 + cmdAppend + cmd2
 
-        cmds.paneLayout()
-        exec(cmd)
-        cmds.setParent('..')
-        cmds.button(l='Pick Version', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), c=partial(tfSelectxGenVersion))
+            cmds.paneLayout()
+            exec(cmd)
+            cmds.setParent('..')
+            cmds.button(l='Pick Version', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), c=partial(tfSelectxGenVersion))
 
-        cmds.showWindow(myVersionWindow)
-        cmds.window(myVersionWindow, e=1,h=120)
+            cmds.showWindow(myVersionWindow)
+            cmds.window(myVersionWindow, e=1,h=120)
+
+        else:
+            cmds.textField('xGenVersion', tx='No xGen descriptions in that Folder!', e=1)
+
 
 
 def tfSelectxGenVersion(*args):
@@ -261,15 +268,16 @@ def tfSelectxGenVersion(*args):
 
 
 
-
 def cImportxGen(action, *args):
-    pass
+    path    = cmds.textField('tfPathxGen', tx=1, q=1)
+    file    = cmds.textField('xGenVersion', tx=1, q=1)
+    nmSpcFX = cmds.textField('tfNmSpcFX', tx=1, q=1) 
+    
+    if nmSpcFX:
+        nmSpcFX = nmSpcFX + ':'
 
-    if (cmds.window('win_xGenList', exists=1)):
-        cmds.deleteUI('win_xGenList')
-        myWindow = cmds.window('win_xGenList', t=('Fox xGen Versions'), s=1, cap='Select Directory')
-        # version = defaultPath.split('_')[-2].strip('v')
-        # cmds.intField('ifVersion', v=int(version), e=1)
+    if cmds.objExists(nmSpcFX + xGenBaseGeo):
+        pass
 
 
 
@@ -360,20 +368,17 @@ def zorroHelpBoxUI(*args):
 
    
 
-    # Attach xGen
-    cmds.frameLayout('flImportxGen', l='Import xGen Description', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=0, cc=partial(cShrinkWin, "win_zorroHelpBox"))
+    # # Attach xGen
+    # cmds.frameLayout('flImportxGen', l='Import xGen Description', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=0, cc=partial(cShrinkWin, "win_zorroHelpBox"))
 
-    cmds.rowColumnLayout(nc=3, cw = [(1, 100), (2, 260), (3, 60)])
-    cmds.button(l='xGen Path >>', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), h=bh1, c=partial(cGetPath, 'choose'))
-    cmds.textField('tfPathxGen', tx=defaultPath, bgc=(0,0,0), ed=1)
-    cmds.button(l='Default', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), h=bh1, c=partial(cGetPath, 'default'))
-    # cmds.setParent('..')
+    # cmds.rowColumnLayout(nc=3, cw = [(1, 100), (2, 260), (3, 60)])
+    # cmds.button(l='xGen Path >>', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), h=bh1, c=partial(cGetPath, 'choose'))
+    # cmds.textField('tfPathxGen', tx=defaultPath, bgc=(0,0,0), ed=1)
+    # cmds.button(l='Default', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), h=bh1, c=partial(cGetPath, 'default'))
 
-    # cmds.rowColumnLayout(nc=4, cw = [(1, 100), (2, 30), (3, 230), (4, 60)])
-    cmds.button(l='Select Version', h=bh1, bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), c=partial(cSelectxGenVersion))
-    cmds.textField('xGenVersion', tx=approvedxGen, bgc=(0,0,0), ed=0)
-    cmds.button(l='Import', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cImportxGen, 'remove'))
-    # cmds.button(l='Remove', h=bh1, bgc=(colDarkRed[0], colDarkRed[1], colDarkRed[2]), c=partial(cImportxGen, 'import'))
+    # cmds.button(l='Select Version', h=bh1, bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), c=partial(cSelectxGenVersion))
+    # cmds.textField('xGenVersion', tx=approvedxGen, bgc=(0,0,0), ed=0)
+    # cmds.button(l='Import', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cImportxGen, 'remove'))
 
 
     cmds.showWindow(myWindow)
