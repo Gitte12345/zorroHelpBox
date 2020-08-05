@@ -21,12 +21,14 @@ colDark         = [0.1, 0.1, 0.1]
 # colBrown        = [0.5, 0.42, 0.36]
 # colBlue         = [0.36, 0.49, 0.5]
 
-colBlue         = [0.078, 0.15, 0.16]
+colBlue         = [0.32, 0.2, 0.14]
+# colBlue         = [0.078, 0.15, 0.16]
 colBrown        = [0.1, 0.16, 0.08]
 
 defaultPath     = 'X:/zorro_zor-5069/_library/assets/characters/chr_zorroFox/cfx_groom/'
 approvedxGen    = 'zor_chr_zorroFox_cfx_groom_v080_thk__body_collection'
 xGenBaseGeo     = 'body_cn_hi_cfx'
+dynControl       = 'dyn_GRP'
 
 def tkHelpSwitchInstancerInputs(*args):
     if cmds.window('win_tkSwitchInstancerINPUtsHELP', exists=1):
@@ -145,15 +147,16 @@ def tkSetVisibility(object, *args):
         anim     = cmds.checkBox('cbAnimGRP', v=1, q=1)
         coll     = cmds.checkBox('cbColliderGRP', v=1, q=1)
         wrap     = cmds.checkBox('cbWrapGRP', v=1, q=1)
-        shirt    = cmds.checkBox('cbShirt', v=1, q=1)
-        cape     = cmds.checkBox('cbCape', v=1, q=1)
+        shirt    = cmds.checkBox('cbShirtMid', v=1, q=1)
+        cape     = cmds.checkBox('cbCapeMid', v=1, q=1)
+        shirtHi  = cmds.checkBox('cbShirtHi', v=1, q=1)
+        capeHi   = cmds.checkBox('cbCapeHi', v=1, q=1)
         exCloth  = cmds.checkBox('cbExportClothGRP', v=1, q=1)
         xGenBase = cmds.checkBox('cbxGenBase', v=1, q=1)
 
         cmds.setAttr(nmSpcFX + collGrp + '.v', coll)
         children = cmds.listRelatives(nmSpcFX + grp, c=1, type = 'transform')
         for child in children:
-            print child
             cmds.setAttr(child + '.v', coll)
 
         cmds.setAttr(nmSpcFX + grp + '.v', anim)
@@ -179,10 +182,13 @@ def tkSetVisibility(object, *args):
         cmds.setAttr(nmSpcFX + 'shirt_cn_cfx_mid_geo_SIM.v', shirt)
         cmds.setAttr(nmSpcFX + 'cape_cn_cfx_mid_geo_SIM.v', cape)
 
+        cmds.setAttr(nmSpcFX + 'shirt_cn_cfx_hi_geo_SIM.v', shirtHi)
+        cmds.setAttr(nmSpcFX + 'cape_cn_cfx_hi_geo_SIM.v', capeHi)
+
 
 
 def tkTglAll(object, *args):
-    listFX    = ['cbAnimGRP', 'cbColliderGRP', 'cbShirt', 'cbCape', 'cbWrapGRP', 'cbExportClothGRP', 'cbxGenBase']
+    listFX    = ['cbAnimGRP', 'cbColliderGRP', 'cbShirtMid', 'cbCapeMid', 'cbShirtHi', 'cbCapeHi', 'cbWrapGRP', 'cbExportClothGRP', 'cbxGenBase']
     listAnim  = ['cbLow', 'cbMid', 'cbHgh', 'cbButtons']
     
     if object is 'FX':
@@ -200,12 +206,18 @@ def tkTglAll(object, *args):
 def cSelectSimELements(object, *args):
     CLT = []
     nmSpcFX = cmds.textField('tfNmSpcFX', tx=1, q=1)
-    if (object == 'shirt'):
+    if (object == 'shirtMid'):
         CLT = ['shirt_cn_cfx_mid_geo_SIM']
-    if (object == 'cape'):
+    if (object == 'capeMid'):
         CLT = ['cape_cn_cfx_mid_geo_SIM']
-    if (object == 'both'):
+    if (object == 'bothMid'):
         CLT = ['cape_cn_cfx_mid_geo_SIM', 'shirt_cn_cfx_mid_geo_SIM']
+    if (object == 'shirtHi'):
+        CLT = ['shirt_cn_cfx_hi_geo_SIM']
+    if (object == 'capeHi'):
+        CLT = ['cape_cn_cfx_hi_geo_SIM']
+    if (object == 'bothHi'):
+        CLT = ['cape_cn_cfx_hi_geo_SIM', 'shirt_cn_cfx_hi_geo_SIM']
 
 
 
@@ -250,26 +262,30 @@ def cDeleteCache(*args):
 
 
 
-def cWrapStatus(action, *args):
+def cWrapStatus(action, field, attribute, *args):
+    # print '--------------'
+    # print 'action:'
+    # print action
+    # print 'field:'
+    # print field
+    # print 'attribute:'
+    # print attribute
     nmSpcFX = cmds.textField('tfNmSpcFX', tx=1, q=1)
     if nmSpcFX:
         nmSpcFX = nmSpcFX + ':'
 
-    if action == 'select':
-        cmds.select(nmSpcFX + 'wrap_cape', r=1)
-        cmds.select(nmSpcFX + 'wrap_shirt.envelope', add=1)
+    if action == 'read':
+        sl = cmds.getAttr(nmSpcFX + dynControl + '.' + attribute) +1
+        # print sl
+        cmds.radioButtonGrp(field, sl=sl, e=1)
 
-    elif action == 'read':
-        cape        = cmds.getAttr(nmSpcFX + 'wrap_cape.envelope')  
-        shirt       = cmds.getAttr(nmSpcFX + 'wrap_cape.envelope')
-        cmds.checkBox('cbCape', v=cape, e=1)
-        cmds.checkBox('cbShirt', v=shirt, e=1)
-    
-    elif action == 'set':
-        cape        = cmds.checkBox('cbCape', v=1, q=1)
-        shirt       = cmds.checkBox('cbShirt', v=1, q=1)
-        cmds.setAttr(nmSpcFX + 'wrap_cape.envelope', cape)
-        cmds.setAttr(nmSpcFX + 'wrap_shirt.envelope', shirt)
+    if action is 'set':
+        sl = cmds.radioButtonGrp(field, sl=1, q=1) -1
+        # print sl
+        cmds.setAttr(nmSpcFX + dynControl + '.' + attribute, sl)
+        
+    # print '--------------'
+
 
 
 
@@ -375,10 +391,9 @@ def zorroHelpBoxUI(*args):
 
 
     cmds.columnLayout(adj=1, bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]))
-    # cmds.frameLayout('flZoorHelpBox', l='zorroHelpBox', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), cll=1, cl=0, cc=partial(cShrinkWin, "win_zorroHelpBox"))
-    
-    # name space
 
+
+    # name space
     cmds.rowColumnLayout(nc=4, cw = [(1, 120), (2, 90), (3, 120), (4, 90)])
     cmds.button(l='nmSpc FX Rig >>', h=bh1, c=partial(cGetNmSpc, 'tfNmSpcFX'), bgc=(colBrown[0], colBrown[1], colBrown[2]))
     cmds.textField('tfNmSpcFX', tx='zor_01', bgc=(0,0,0), ed=0)
@@ -389,43 +404,49 @@ def zorroHelpBoxUI(*args):
 
 
 
-    # # visibility
-    # cmds.frameLayout('flVisibility', l='Visbility Anim Elements', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
-    # cmds.rowColumnLayout(nc=5, cw = [(1, 120), (2, 70), (3, 70), (4, 70), (5, 90)])
-
-    # cmds.button(l='Set Visibility', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(tkSetVisibility))
-    # cmds.checkBox('cbLow', l='low', v=0)
-    # cmds.checkBox('cbMid', l='mid', v=1)
-    # cmds.checkBox('cbHgh', l='high', v=0)
-    # cmds.checkBox('cbButtons', l='Buttons', v=0)
-
-    # cmds.setParent(top=1)
 
     # visibility
-
     cmds.frameLayout('flVisibility', l='Visbility', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=0, cc=partial(cShrinkWin, "win_zorroHelpBox"))
-    cmds.rowColumnLayout(nc=4, cw = [(1, 105), (2, 105), (3, 105), (4, 105)])
+    # cmds.rowColumnLayout(nc=4, cw = [(1, 105), (2, 105), (3, 105), (4, 105)])
+    cmds.rowColumnLayout(nc=6, cw = [(1, 10), (2, 100), (3, 100), (4, 10), (5, 100), (6, 100)])
 
-    cmds.checkBox('cbAnimGRP', l='anim_GRP', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
-    cmds.checkBox('cbColliderGRP', l='collider', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
-    cmds.checkBox('cbLow', l='low', v=0, bgc=(colBlue[0], colBlue[1], colBlue[2]))
-    cmds.checkBox('cbMid', l='mid', v=1, bgc=(colBlue[0], colBlue[1], colBlue[2]))
+    cmds.text(' ', bgc = (colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbAnimGRP', l='Anim_GRP', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbColliderGRP', l='Collider', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.text(' ', bgc = (colBlue[0], colBlue[1], colBlue[2]))
+    cmds.checkBox('cbLow', l='Low', v=0, bgc=(colBlue[0], colBlue[1], colBlue[2]))
+    cmds.checkBox('cbMid', l='Mid', v=1, bgc=(colBlue[0], colBlue[1], colBlue[2]))
 
-    cmds.checkBox('cbShirt', l='shirt', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
-    cmds.checkBox('cbCape', l='cape', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
-    cmds.checkBox('cbHgh', l='high', v=0, bgc=(colBlue[0], colBlue[1], colBlue[2]))
+    cmds.text(' ', bgc = (colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbShirtMid', l='Shirt Mid', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbCapeMid', l='Cape Mid', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.text(' ', bgc = (colBlue[0], colBlue[1], colBlue[2]))
+    cmds.checkBox('cbHgh', l='High', v=0, bgc=(colBlue[0], colBlue[1], colBlue[2]))
     cmds.checkBox('cbButtons', l='Buttons', v=0, bgc=(colBlue[0], colBlue[1], colBlue[2]))
 
-    cmds.checkBox('cbWrapGRP', l='wrap_GRP', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
-    cmds.checkBox('cbExportClothGRP', l='exportCloth', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.text(' ', bgc = (colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbShirtHi', l='Shirt Hi', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbCapeHi', l='Cape Hi', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.text(' ', bgc = (colBlue[0], colBlue[1], colBlue[2]))
     cmds.text(' ', bgc=(colBlue[0], colBlue[1], colBlue[2]))
     cmds.text(' ', bgc=(colBlue[0], colBlue[1], colBlue[2]))
 
+    cmds.text(' ', bgc = (colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbWrapGRP', l='Wrap_GRP', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbExportClothGRP', l='Export Cloth', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.text(' ', bgc = (colBlue[0], colBlue[1], colBlue[2]))
+    cmds.text(' ', bgc=(colBlue[0], colBlue[1], colBlue[2]))
+    cmds.text(' ', bgc=(colBlue[0], colBlue[1], colBlue[2]))
+
+    cmds.text(' ', bgc = (colBrown[0], colBrown[1], colBrown[2]))
     cmds.checkBox('cbxGenBase', l='xGenBase', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
-    cmds.text(' ', bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.text(' ', bgc = (colBrown[0], colBrown[1], colBrown[2]))
     cmds.text(' ', bgc=(colBlue[0], colBlue[1], colBlue[2]))
     cmds.text(' ', bgc=(colBlue[0], colBlue[1], colBlue[2]))
+    cmds.text(' ', bgc=(colBlue[0], colBlue[1], colBlue[2]))
+    cmds.setParent('..')
 
+    cmds.rowColumnLayout(nc=4, cw = [(1, 105), (2, 105), (3, 105), (4, 105)])
     cmds.button(l='Tgl All', h=bh1, bgc=(colBrown[0], colBrown[1], colBrown[2]), c=partial(tkTglAll, 'FX'))
     cmds.button(l='Set FX Visibility', h=bh1, bgc=(colBrown[0], colBrown[1], colBrown[2]), c=partial(tkSetVisibility, 'FX'))
     cmds.button(l='Tgl All', h=bh1, bgc=(colBlue[0], colBlue[1], colBlue[2]), c=partial(tkTglAll, 'Anim'))
@@ -458,13 +479,26 @@ def zorroHelpBoxUI(*args):
 
     
 
-    # caching
-    cmds.frameLayout('flCache', l='Select Cloth And Cache', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
+    # caching Mid     
+    cmds.frameLayout('flCacheMid', l='Select Cloth And Cache Mid', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
     # cmds.rowColumnLayout(nc=3, cw = [(1, 210), (2, 105), (3, 105)])
     cmds.rowColumnLayout(nc=5, cw = [(1, 70), (2, 70), (3, 70), (4, 105), (5, 105)])
-    cmds.button(l='Shirt', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'shirt'))
-    cmds.button(l='Cape', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'cape'))
-    cmds.button(l='Both', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'both'))
+    cmds.button(l='Shirt Mid', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'shirtMid'))
+    cmds.button(l='Cape Mid', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'capeMid'))
+    cmds.button(l='Both', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'bothMid'))
+    cmds.button(l='Create Cache', h=bh1, bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), c=partial(cClothCache))
+    cmds.button(l='Delete Cache', h=bh1, bgc=(colDarkRed[0], colDarkRed[1], colDarkRed[2]), c=partial(cDeleteCache))
+    cmds.setParent(top=1)
+
+
+
+    # caching Highres
+    cmds.frameLayout('flCacheHi', l='Select Cloth And Cache High', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
+    # cmds.rowColumnLayout(nc=3, cw = [(1, 210), (2, 105), (3, 105)])
+    cmds.rowColumnLayout(nc=5, cw = [(1, 70), (2, 70), (3, 70), (4, 105), (5, 105)])
+    cmds.button(l='Shirt Hi', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'shirtHi'))
+    cmds.button(l='Cape Hi', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'capeHi'))
+    cmds.button(l='Both', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'bothHi'))
     cmds.button(l='Create Cache', h=bh1, bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), c=partial(cClothCache))
     cmds.button(l='Delete Cache', h=bh1, bgc=(colDarkRed[0], colDarkRed[1], colDarkRed[2]), c=partial(cDeleteCache))
     cmds.setParent(top=1)
@@ -472,17 +506,22 @@ def zorroHelpBoxUI(*args):
 
 
     # Bring To Highres
-    cmds.frameLayout('flBring To Highres', l='Bring To Highres', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
-    cmds.rowColumnLayout(nc=5, cw = [(1, 120), (2, 70), (3, 70), (4, 80), (5, 80)])
-    # cmds.text('Enable Wrap')
-    cmds.button(l='Cloth Wraps', h=bh1, bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), c=partial(cWrapStatus, 'select'))
-    cmds.checkBox('cbCape', l='Cape', v=0)
-    cmds.checkBox('cbShirt', l='Shirt', v=0)
-    cmds.button(l='Read', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cWrapStatus, 'read'))
-    cmds.button(l='Set', h=bh1, bgc=(colDarkRed[0], colDarkRed[1], colDarkRed[2]), c=partial(cWrapStatus, 'set'))
+    cmds.frameLayout('flBring To Highres', l='Bring To Highres', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=0, cc=partial(cShrinkWin, "win_zorroHelpBox"))
+    # cmds.rowColumnLayout(nc=3, cw = [(1, 120), (2, 210), (3, 90)])
+    cmds.rowColumnLayout(nc=3, cw = [(1, 90), (2, 240), (3, 90)])
+
+    cmds.button(l='Read Wraps', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cWrapStatus, 'read', 'rbCapeWraps', 'capeWrap'))
+    # cmds.radioButtonGrp('rbCapeWraps', label=' ', labelArray3=['Off', 'Mid', 'High'], numberOfRadioButtons=3, cal=[9, 'left'],cw4=[10, 67, 67, 67], sl=1)
+    cmds.radioButtonGrp('rbCapeWraps', label='Cape', labelArray3=['Off', 'Mid', 'High'], numberOfRadioButtons=3, cal=[1, 'center'] ,cw4=[55, 55, 55, 55], sl=1)
+    cmds.button(l='Set', h=bh1, bgc=(colDarkRed[0], colDarkRed[1], colDarkRed[2]), c=partial(cWrapStatus, 'set', 'rbCapeWraps', 'capeWrap'))
+    
+    cmds.button(l='Read Wraps', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cWrapStatus, 'read', 'rbShirtWraps', 'shirtWrap'))
+    # cmds.radioButtonGrp('rbShirtWraps', label='  ', labelArray3=['Off', 'Mid', 'High'], numberOfRadioButtons=3, cal=[9, 'left'],cw4=[10, 67, 67, 67], sl=1)
+    cmds.radioButtonGrp('rbShirtWraps', label='Shirt', labelArray3=['Off', 'Mid', 'High'], numberOfRadioButtons=3, cal=[1, 'center'] ,cw4=[55, 55, 55, 55], sl=1)
+    cmds.button(l='Set', h=bh1, bgc=(colDarkRed[0], colDarkRed[1], colDarkRed[2]), c=partial(cWrapStatus, 'set', 'rbShirtWraps', 'shirtWrap'))
     cmds.setParent(top=1)
 
-   
+
 
     # Attach xGen
     cmds.frameLayout('flImportxGen', l='Import xGen Description', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
