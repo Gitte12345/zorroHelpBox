@@ -10,13 +10,19 @@ Tools for zorro sim
 
 
 '''
-colDarkGreen        = [0.1, 0.16, 0.08]
-colFrame            = [0.3, 0.3, 0.3]
-colFrameRed         = [0.4, 0.3, 0.3]
-colDarkRed          = [0.32, 0.2, 0.14]
-colFrameGreen       = [0.3, 0.4, 0.28]
-colLightGreen       = [0.4, 0.5, 0.36]
-colDark             = [0.1, 0.1, 0.1]
+colDarkGreen    = [0.1, 0.16, 0.08]
+colFrame        = [0.3, 0.3, 0.3]
+colFrameRed     = [0.4, 0.3, 0.3]
+colDarkRed      = [0.32, 0.2, 0.14]
+colFrameGreen   = [0.3, 0.4, 0.28]
+colLightGreen   = [0.4, 0.5, 0.36]
+colDark         = [0.1, 0.1, 0.1]
+
+# colBrown        = [0.5, 0.42, 0.36]
+# colBlue         = [0.36, 0.49, 0.5]
+
+colBlue         = [0.078, 0.15, 0.16]
+colBrown        = [0.1, 0.16, 0.08]
 
 defaultPath     = 'X:/zorro_zor-5069/_library/assets/characters/chr_zorroFox/cfx_groom/'
 approvedxGen    = 'zor_chr_zorroFox_cfx_groom_v080_thk__body_collection'
@@ -26,7 +32,7 @@ def tkHelpSwitchInstancerInputs(*args):
     if cmds.window('win_tkSwitchInstancerINPUtsHELP', exists=1):
         cmds.deleteUI('win_tkSwitchInstancerINPUtsHELP')
     myWindow = cmds.window('win_tkSwitchInstancerINPUtsHELP', s=1, t='help', wh=[200, 200])
-    helpText = 'Replace instanced references without changing order\n---------------------------------------------------\nInstancer:          Choose Instancer \nUses                   The namespace of the first connected obj\nReplace With:   Select file you want to replace from\n                           Gets the namespace automatically'
+    helpText = 'Replace instanced references without changing order\n---------------------------------------------------\nInstancer:          Choose Instancer \nUses                   The namespace of the first connected    obj\nReplace With:   Select file you want to replace from\n                           Gets the namespace automatically'
     cmds.columnLayout(adj=1)
     cmds.text(helpText, al='left')
     cmds.showWindow(myWindow )
@@ -95,14 +101,25 @@ def cGetNmSpc(field, *args):
 
 
 
-def tkSetVisibilty(*args):
-    nmSpc = cmds.textField('tfNmSpcAnim', tx=1, q=1)
+def tkSetVisibility(object, *args):
+    grp         = 'ANIM_GRP'
+    wrapGrp     = 'wrap_GRP'
+    collGrp     = 'passive_GRP'
+    exClothGrp  = 'export_cloth_GRP'
+    xGenBaseGrp = 'xGenBase_GRP'
+    nmSpc       = cmds.textField('tfNmSpcAnim', tx=1, q=1)
+    nmSpcFX     = cmds.textField('tfNmSpcFX', tx=1, q=1)
+
     if nmSpc:
-        nmSpc   = nmSpc + ':'
+        nmSpc = nmSpc + ':'   
+    if nmSpcFX:
+        nmSpcFX = nmSpcFX + ':'
+
+    if object is 'Anim':
         low     = cmds.checkBox('cbLow', v=1, q=1)
         mid     = cmds.checkBox('cbMid', v=1, q=1)
         hgh     = cmds.checkBox('cbHgh', v=1, q=1)
-        but     = cmds.checkBox('cbButtons', v=1, q=1)
+        but     = cmds.checkBox('cbButtons', v=1, q=1)    
 
         dagList = cmds.ls(nmSpc + '*_lo_*', type='transform')
         for i in dagList:
@@ -124,9 +141,60 @@ def tkSetVisibilty(*args):
             print i
             cmds.setAttr(i + '.v', but)
 
-    else:
-        print 'no namespace!'
+    if object is 'FX':
+        anim     = cmds.checkBox('cbAnimGRP', v=1, q=1)
+        coll     = cmds.checkBox('cbColliderGRP', v=1, q=1)
+        wrap     = cmds.checkBox('cbWrapGRP', v=1, q=1)
+        shirt    = cmds.checkBox('cbShirt', v=1, q=1)
+        cape     = cmds.checkBox('cbCape', v=1, q=1)
+        exCloth  = cmds.checkBox('cbExportClothGRP', v=1, q=1)
+        xGenBase = cmds.checkBox('cbxGenBase', v=1, q=1)
+
+        cmds.setAttr(nmSpcFX + collGrp + '.v', coll)
+        children = cmds.listRelatives(nmSpcFX + grp, c=1, type = 'transform')
+        for child in children:
+            print child
+            cmds.setAttr(child + '.v', coll)
+
+        cmds.setAttr(nmSpcFX + grp + '.v', anim)
+        children = cmds.listRelatives(nmSpcFX + grp, c=1, type = 'transform')
+        for child in children:
+            cmds.setAttr(child + '.v', anim)
+
+        cmds.setAttr(nmSpcFX + wrapGrp + '.v', wrap)
+        children = cmds.listRelatives(nmSpcFX + wrapGrp, c=1, type = 'transform')
+        for child in children:
+            cmds.setAttr(child + '.v', wrap)
+
+        cmds.setAttr(nmSpcFX + exClothGrp + '.v', exCloth)
+        children = cmds.listRelatives(nmSpcFX + exClothGrp, c=1, type = 'transform')
+        for child in children:
+            cmds.setAttr(child + '.v', exCloth)
+
+        cmds.setAttr(nmSpcFX + xGenBaseGrp + '.v', xGenBase)
+        children = cmds.listRelatives(nmSpcFX + xGenBaseGrp, c=1, type = 'transform')
+        for child in children:
+            cmds.setAttr(child + '.v', xGenBase)
+
+        cmds.setAttr(nmSpcFX + 'shirt_cn_cfx_mid_geo_SIM.v', shirt)
+        cmds.setAttr(nmSpcFX + 'cape_cn_cfx_mid_geo_SIM.v', cape)
+
+
+
+def tkTglAll(object, *args):
+    listFX    = ['cbAnimGRP', 'cbColliderGRP', 'cbShirt', 'cbCape', 'cbWrapGRP', 'cbExportClothGRP', 'cbxGenBase']
+    listAnim  = ['cbLow', 'cbMid', 'cbHgh', 'cbButtons']
     
+    if object is 'FX':
+        state = cmds.checkBox(listFX[0], v=1, q=1) -1
+        for i in listFX:
+            cmds.checkBox(i, v=state, e=1)
+
+    if object is 'Anim':
+        state = cmds.checkBox(listAnim[0], v=1, q=1) -1
+        for i in listAnim:
+            cmds.checkBox(i, v=state, e=1)
+
 
 
 def cSelectSimELements(object, *args):
@@ -312,24 +380,59 @@ def zorroHelpBoxUI(*args):
     # name space
 
     cmds.rowColumnLayout(nc=4, cw = [(1, 120), (2, 90), (3, 120), (4, 90)])
-    cmds.button(l='nmSpc FX Rig >>', h=bh1, c=partial(cGetNmSpc, 'tfNmSpcFX'))
+    cmds.button(l='nmSpc FX Rig >>', h=bh1, c=partial(cGetNmSpc, 'tfNmSpcFX'), bgc=(colBrown[0], colBrown[1], colBrown[2]))
     cmds.textField('tfNmSpcFX', tx='zor_01', bgc=(0,0,0), ed=0)
 
-    cmds.button(l='nmSpc Anim >>', h=bh1, c=partial(cGetNmSpc, 'tfNmSpcAnim'))
+    cmds.button(l='nmSpc Anim >>', h=bh1, c=partial(cGetNmSpc, 'tfNmSpcAnim'), bgc=(colBlue[0], colBlue[1], colBlue[2]))
     cmds.textField('tfNmSpcAnim', tx='zor_02', bgc=(0,0,0), ed=0)
     cmds.setParent(top=1)
 
 
 
-    # visibility
-    cmds.frameLayout('flVisibility', l='Visbility Anim Elements', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
-    cmds.rowColumnLayout(nc=5, cw = [(1, 120), (2, 70), (3, 70), (4, 70), (5, 90)])
+    # # visibility
+    # cmds.frameLayout('flVisibility', l='Visbility Anim Elements', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
+    # cmds.rowColumnLayout(nc=5, cw = [(1, 120), (2, 70), (3, 70), (4, 70), (5, 90)])
 
-    cmds.button(l='Set Visibility', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(tkSetVisibilty))
-    cmds.checkBox('cbLow', l='low', v=0)
-    cmds.checkBox('cbMid', l='mid', v=1)
-    cmds.checkBox('cbHgh', l='high', v=0)
-    cmds.checkBox('cbButtons', l='Buttons', v=0)
+    # cmds.button(l='Set Visibility', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(tkSetVisibility))
+    # cmds.checkBox('cbLow', l='low', v=0)
+    # cmds.checkBox('cbMid', l='mid', v=1)
+    # cmds.checkBox('cbHgh', l='high', v=0)
+    # cmds.checkBox('cbButtons', l='Buttons', v=0)
+
+    # cmds.setParent(top=1)
+
+    # visibility
+
+    cmds.frameLayout('flVisibility', l='Visbility', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=0, cc=partial(cShrinkWin, "win_zorroHelpBox"))
+    cmds.rowColumnLayout(nc=4, cw = [(1, 105), (2, 105), (3, 105), (4, 105)])
+
+    cmds.checkBox('cbAnimGRP', l='anim_GRP', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbColliderGRP', l='collider', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbLow', l='low', v=0, bgc=(colBlue[0], colBlue[1], colBlue[2]))
+    cmds.checkBox('cbMid', l='mid', v=1, bgc=(colBlue[0], colBlue[1], colBlue[2]))
+
+    cmds.checkBox('cbShirt', l='shirt', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbCape', l='cape', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbHgh', l='high', v=0, bgc=(colBlue[0], colBlue[1], colBlue[2]))
+    cmds.checkBox('cbButtons', l='Buttons', v=0, bgc=(colBlue[0], colBlue[1], colBlue[2]))
+
+    cmds.checkBox('cbWrapGRP', l='wrap_GRP', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.checkBox('cbExportClothGRP', l='exportCloth', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.text(' ', bgc=(colBlue[0], colBlue[1], colBlue[2]))
+    cmds.text(' ', bgc=(colBlue[0], colBlue[1], colBlue[2]))
+
+    cmds.checkBox('cbxGenBase', l='xGenBase', v=0, bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.text(' ', bgc=(colBrown[0], colBrown[1], colBrown[2]))
+    cmds.text(' ', bgc=(colBlue[0], colBlue[1], colBlue[2]))
+    cmds.text(' ', bgc=(colBlue[0], colBlue[1], colBlue[2]))
+
+    cmds.button(l='Tgl All', h=bh1, bgc=(colBrown[0], colBrown[1], colBrown[2]), c=partial(tkTglAll, 'FX'))
+    cmds.button(l='Set FX Visibility', h=bh1, bgc=(colBrown[0], colBrown[1], colBrown[2]), c=partial(tkSetVisibility, 'FX'))
+    cmds.button(l='Tgl All', h=bh1, bgc=(colBlue[0], colBlue[1], colBlue[2]), c=partial(tkTglAll, 'Anim'))
+    cmds.button(l='Set Anim Visibility', h=bh1, bgc=(colBlue[0], colBlue[1], colBlue[2]), c=partial(tkSetVisibility, 'Anim'))
+
+
+
 
     cmds.setParent(top=1)
 
@@ -350,7 +453,7 @@ def zorroHelpBoxUI(*args):
     cmds.rowColumnLayout(nc=3, cw = [(1, 210), (2, 105), (3, 105)])
     cmds.button(l='Select FX Anim Geos', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectFXAnimELements))
     cmds.button(l='Export As Abc', h=bh1, bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), c=partial(cExportAsABC))
-    cmds.button(l='Import FX Abc', h=bh1, bgc=(colDarkRed[0], colDarkRed[1], colDarkRed[2]), c=partial(cReferenceAnimABC))
+    cmds.button(l='Reference FX Abc', h=bh1, bgc=(colDarkRed[0], colDarkRed[1], colDarkRed[2]), c=partial(cReferenceAnimABC))
     cmds.setParent(top=1)
 
     
@@ -382,7 +485,7 @@ def zorroHelpBoxUI(*args):
    
 
     # Attach xGen
-    cmds.frameLayout('flImportxGen', l='Import xGen Description', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=0, cc=partial(cShrinkWin, "win_zorroHelpBox"))
+    cmds.frameLayout('flImportxGen', l='Import xGen Description', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
 
     cmds.rowColumnLayout(nc=3, cw = [(1, 100), (2, 260), (3, 60)])
     cmds.button(l='xGen Path >>', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), h=bh1, c=partial(cGetPath, 'choose'))
