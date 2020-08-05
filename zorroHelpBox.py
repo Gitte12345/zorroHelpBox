@@ -42,7 +42,8 @@ def cShrinkWin(windowToClose, *args):
 def tk_linkAnimToCloth(action, *args):
     CLT = ['cape_cn_cfx_mid_geo_oneSided', 'shirt_cn_cfx_mid_geo_oneSided', 
         'leatherSheath_cn_lo_geo', 'metalSheath_cn_lo_geo', 'beltBuckle_cn_lo_geo', 
-        'belt_cn_lo_geo', 'beltSheathLong_cn_lo_geo', 'beltSheathWide_cn_lo_geo', 'furVolume_cn_mid_anim_geo' ]
+        'belt_cn_lo_geo', 'beltSheathLong_cn_lo_geo', 'beltSheathWide_cn_lo_geo', 'furVolume_cn_mid_anim_geo', 
+        'body_cn_hi_cfx']        
     
     nmSpcAnim = cmds.textField('tfNmSpcAnim', tx=1, q=1)
     nmSpcFX = cmds.textField('tfNmSpcFX', tx=1, q=1)
@@ -128,9 +129,18 @@ def tkSetVisibilty(*args):
     
 
 
-def cSelectSimELements(*args):
+def cSelectSimELements(object, *args):
+    CLT = []
     nmSpcFX = cmds.textField('tfNmSpcFX', tx=1, q=1)
-    CLT = ['cape_cn_cfx_mid_geo_SIM', 'shirt_cn_cfx_mid_geo_SIM']
+    if (object == 'shirt'):
+        CLT = ['shirt_cn_cfx_mid_geo_SIM']
+    if (object == 'cape'):
+        CLT = ['cape_cn_cfx_mid_geo_SIM']
+    if (object == 'both'):
+        CLT = ['cape_cn_cfx_mid_geo_SIM', 'shirt_cn_cfx_mid_geo_SIM']
+
+
+
     cmds.select(clear=1)
     if nmSpcFX:
         nmSpcFX = nmSpcFX + ':'
@@ -149,7 +159,7 @@ def cSelectFXAnimELements(*args):
         nmSpcFX = nmSpcFX + ':'
 
     cmds.select(nmSpcFX + grp, r=1)
-
+    cmds.select(nmSpcFX + 'xGenBase_GRP', add=1)
 
 
 def cExportAsABC(*args):
@@ -312,7 +322,7 @@ def zorroHelpBoxUI(*args):
 
 
     # visibility
-    cmds.frameLayout('flVisibility', l='Visbility Anim ELements', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
+    cmds.frameLayout('flVisibility', l='Visbility Anim Elements', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
     cmds.rowColumnLayout(nc=5, cw = [(1, 120), (2, 70), (3, 70), (4, 70), (5, 90)])
 
     cmds.button(l='Set Visibility', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(tkSetVisibilty))
@@ -346,9 +356,12 @@ def zorroHelpBoxUI(*args):
     
 
     # caching
-    cmds.frameLayout('flCache', l='Caching', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
-    cmds.rowColumnLayout(nc=3, cw = [(1, 210), (2, 105), (3, 105)])
-    cmds.button(l='Select Cloth Geos', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements))
+    cmds.frameLayout('flCache', l='Select Cloth And Cache', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=1, cc=partial(cShrinkWin, "win_zorroHelpBox"))
+    # cmds.rowColumnLayout(nc=3, cw = [(1, 210), (2, 105), (3, 105)])
+    cmds.rowColumnLayout(nc=5, cw = [(1, 70), (2, 70), (3, 70), (4, 105), (5, 105)])
+    cmds.button(l='Shirt', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'shirt'))
+    cmds.button(l='Cape', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'cape'))
+    cmds.button(l='Both', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cSelectSimELements, 'both'))
     cmds.button(l='Create Cache', h=bh1, bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), c=partial(cClothCache))
     cmds.button(l='Delete Cache', h=bh1, bgc=(colDarkRed[0], colDarkRed[1], colDarkRed[2]), c=partial(cDeleteCache))
     cmds.setParent(top=1)
@@ -368,17 +381,17 @@ def zorroHelpBoxUI(*args):
 
    
 
-    # # Attach xGen
-    # cmds.frameLayout('flImportxGen', l='Import xGen Description', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=0, cc=partial(cShrinkWin, "win_zorroHelpBox"))
+    # Attach xGen
+    cmds.frameLayout('flImportxGen', l='Import xGen Description', bgc=(colFrameGreen[0], colFrameGreen[1], colFrameGreen[2]), cll=1, cl=0, cc=partial(cShrinkWin, "win_zorroHelpBox"))
 
-    # cmds.rowColumnLayout(nc=3, cw = [(1, 100), (2, 260), (3, 60)])
-    # cmds.button(l='xGen Path >>', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), h=bh1, c=partial(cGetPath, 'choose'))
-    # cmds.textField('tfPathxGen', tx=defaultPath, bgc=(0,0,0), ed=1)
-    # cmds.button(l='Default', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), h=bh1, c=partial(cGetPath, 'default'))
+    cmds.rowColumnLayout(nc=3, cw = [(1, 100), (2, 260), (3, 60)])
+    cmds.button(l='xGen Path >>', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), h=bh1, c=partial(cGetPath, 'choose'))
+    cmds.textField('tfPathxGen', tx=defaultPath, bgc=(0,0,0), ed=1)
+    cmds.button(l='Default', bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), h=bh1, c=partial(cGetPath, 'default'))
 
-    # cmds.button(l='Select Version', h=bh1, bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), c=partial(cSelectxGenVersion))
-    # cmds.textField('xGenVersion', tx=approvedxGen, bgc=(0,0,0), ed=0)
-    # cmds.button(l='Import', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cImportxGen, 'remove'))
+    cmds.button(l='Select Version', h=bh1, bgc=(colDarkGreen[0], colDarkGreen[1], colDarkGreen[2]), c=partial(cSelectxGenVersion))
+    cmds.textField('xGenVersion', tx=approvedxGen, bgc=(0,0,0), ed=0)
+    cmds.button(l='Import', h=bh1, bgc=(colLightGreen[0], colLightGreen[1], colLightGreen[2]), c=partial(cImportxGen, 'remove'))
 
 
     cmds.showWindow(myWindow)
