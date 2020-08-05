@@ -1,0 +1,66 @@
+
+---------------------
+Zorro Fox
+---------------------
+workflow xGen fox:
+1. Import collection,
+check that "body_cn_hi_cfx" is present,
+thats where the xGen is attached to
+2. Choose xGen file from the scenes folder, eg. v080 (approved version)
+3. Save file as new anim version
+4. Assign shader from the zorroFox_groom scene to xGen description
+
+workflow sim curves:
+A
+1. Guides to Curves (delete guides)
+2. Select all curves, select base geo,
+FX --> nHair --> Make Selected Curves Dynamic (attach, snap exact)
+3. Hair system settings:
+Dyn Settings --> No Stretch must be OFF
+start curve attract 1 - 1.5
+4. Select hairSystem and write nCache and check
+5. Select output curve group
+xGen --> utilities --> curves to guides
+Preserve dynamic link
+or
+1. Use Anim Wires
+or
+1. Use Animated and create a hairSystem within xGen UI
+
+workflow for playblasting:
+1. xGen updates preview automatically
+does not work for basegeo with namespace
+
+workflow for additional collision
+- Collision modifier?
+mode to stiff worked best
+to be tested on the fox
+- MeshCut modifier
+Offset: Slight offset, check out the radius
+CutType: Cull
+option to bake, to be tested
+- Anim Wires?
+to be tested
+
+workflow for rendering:
+1. Export patches for batch rendering!
+animated in range...
+2. xGen rendermode: batch render
+3. render
+
+toms workingfiles for testing:
+000_003_cfx_cloth
+
+to be developed / tested:
+- cloth sim setup (cape, shirt)
+- xGen Sim (wind modifier, animWire modifier, nHair, momentary to strong)
+- render incl motion blur
+- pipeline
+
+---------------------
+to do:
+- pixo playblast with option waiting for xGen generation in the viewport
+ca 4 f / min = 15sec / f
+playblasttime =  15 min for 100 frames (15% groom)
+- latest rig has the wrong cfx gox geo, different point order
+exchange it with x:\zorro_zor-5069\_library\characters\chr_torroFox\cfx_groom\scenes\_exchange\body_cn_hi_cfx.ma" 
