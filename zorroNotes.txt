@@ -64,3 +64,8 @@ ca 4 f / min = 15sec / f
 playblasttime =  15 min for 100 frames (15% groom)
 - latest rig has the wrong cfx gox geo, different point order
 exchange it with x:\zorro_zor-5069\_library\characters\chr_torroFox\cfx_groom\scenes\_exchange\body_cn_hi_cfx.ma" 
+
+
+---------------------
+testfile, alembic with all geos
+"X:\zorro_zor-5069\100\060\3d\layout\_publish\zor_100_060_layout_v009_ail.ZorroFoxZor01.high.THK_QUICKFIX.abc"
